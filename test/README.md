@@ -1,47 +1,47 @@
-# Sample testbench for a Tiny Tapeout project
+# NUAT Labs I2C Controller Verification Testbench
 
-This is a sample testbench for a Tiny Tapeout project. It uses [cocotb](https://docs.cocotb.org/en/stable/) to drive the DUT and check the outputs.
-See below to get started or for more information, check the [website](https://tinytapeout.com/hdl/testing/).
+This directory contains the verification environment for the NUAT Labs I2C Master Controller (`tt_um_nuatlabs_i2c`) targeted for the Tiny Tapeout shuttle. The testbench uses [cocotb](https://docs.cocotb.org/en/stable/) and Icarus Verilog to thoroughly verify open-drain protocol compliance, arbitration loss, clock stretching, and addressing.
 
-## Setting up
+## Test Suite Coverage
 
-1. Edit [Makefile](Makefile) and modify `PROJECT_SOURCES` to point to your Verilog files.
-2. Edit [tb.v](tb.v) and replace `tt_um_example` with your module name.
+The test suite in [test.py](test.py) validates:
+1. **test_reset_and_idle**: Verifies power-on reset state and high-impedance pull-up line levels.
+2. **test_i2c_write_single_byte_with_ack**: Verifies START generation, 8-bit addressing/data, slave ACK detection, and STOP.
+3. **test_i2c_write_nack_error**: Verifies NACK detection and `ack_error` telemetry flag assertion when slave does not ACK.
+4. **test_i2c_read_single_byte**: Verifies single-byte read transfer, master NACK generation on last byte, STOP, and received data output.
+5. **test_i2c_repeated_start**: Verifies Repeated START (Sr) sequence: address write without STOP followed by data read.
+6. **test_i2c_clock_stretching**: Simulates an external slave holding SCL low and verifies controller timer pause and recovery.
+7. **test_i2c_arbitration_loss**: Injects an external bus collision during bit transmission and validates immediate arbitration loss detection and bus release.
 
-## How to run
+## How to Run the Tests
 
-To run the RTL simulation:
+### Option 1: Python Test Runner
+
+```sh
+python test/run_tests.py
+```
+
+### Option 2: Pytest
+
+```sh
+pytest test/run_tests.py
+```
+
+### Option 3: Makefile (Linux / WSL)
 
 ```sh
 make -B
 ```
 
-To run gatelevel simulation, first harden your project and copy `../runs/wokwi/results/final/verilog/gl/{your_module_name}.v` to `gate_level_netlist.v`.
+## Viewing Waveforms
 
-Then run:
+The testbench generates `tb.fst` which can be inspected using:
 
-```sh
-make -B GATES=yes
-```
-
-If you wish to save the waveform in VCD format instead of FST format, edit tb.v to use `$dumpfile("tb.vcd");` and then run:
-
-```sh
-make -B FST=
-```
-
-This will generate `tb.vcd` instead of `tb.fst`.
-
-## How to view the waveform file
-
-Using GTKWave
-
-```sh
-gtkwave tb.fst tb.gtkw
-```
-
-Using Surfer
-
-```sh
-surfer tb.fst
-```
+- **GTKWave**:
+  ```sh
+  gtkwave tb.fst
+  ```
+- **Surfer**:
+  ```sh
+  surfer tb.fst
+  ```

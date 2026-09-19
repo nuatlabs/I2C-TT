@@ -1,42 +1,57 @@
+# NUAT Labs I2C Controller
+
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+A high-reliability I2C Master Controller design targeted for the **Tiny Tapeout** ASIC shuttle, developed by **NUAT Labs**.
 
-- [Read the documentation for project](docs/info.md)
+## Overview
 
-## What is Tiny Tapeout?
+The NUAT Labs I2C Controller implements a robust, fully compliant I2C master protocol engine featuring:
+- **Open-drain interface**: True bidirectional open-drain pads on SCL and SDA.
+- **Protocol finite state machine (FSM)**: 4-phase timing generator for clean setup and hold times.
+- **START, Repeated START (Sr), and STOP**: Full framing control for single-byte and multi-byte transfers.
+- **7-bit addressing and ACK/NACK**: Automatic acknowledgement evaluation and generation.
+- **Hardware clock stretching**: Automatic detection and pause when slaves stretch SCL low.
+- **Arbitration loss detection**: Multi-master collision detection with immediate bus release.
+- **Telemetry multiplexing**: Real-time status register and received data output via dedicated pins.
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+Detailed datasheet documentation is available in [docs/info.md](docs/info.md).
 
-To learn more and get started, visit https://tinytapeout.com.
+## Pinout Summary
 
-## Set up your Verilog project
+| Pin | Name | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `ui[7:0]` | `DATA_IN[7:0]` | Input | Transmit data byte or slave address / NACK control |
+| `uo[7:0]` | `DATA_OUT[7:0]` | Output | Received data byte (`ui[7]=0`) or status word (`ui[7]=1`) |
+| `uio[0]` | `I2C_SCL` | Bidir | I2C Serial Clock (open-drain, external pull-up required) |
+| `uio[1]` | `I2C_SDA` | Bidir | I2C Serial Data (open-drain, external pull-up required) |
+| `uio[2]` | `CMD_START` | Input | Generate START or Repeated START before byte transfer |
+| `uio[3]` | `CMD_READ` | Input | 1 = Read byte from slave, 0 = Write byte to slave |
+| `uio[4]` | `CMD_STOP` | Input | Generate STOP condition after byte transfer |
+| `uio[5]` | `CMD_VALID` | Input | Command execute strobe (active high pulse) |
+| `uio[6]` | `BUSY` | Output | Controller busy indicator |
+| `uio[7]` | `IRQ_DONE` | Output | Transaction completion interrupt pulse |
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+## Verification
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
+The core includes a comprehensive Cocotb test suite verified against Icarus Verilog:
+- Power-on reset state and bus idle verification
+- Single-byte and multi-byte write operations with slave ACK
+- Slave NACK error detection
+- Read operations with master ACK/NACK and STOP
+- Repeated START (Sr) sequence execution
+- Hardware clock stretching handling
+- Multi-master arbitration loss detection
 
-## Enable GitHub actions to build the results page
+To run the verification suite locally:
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+```bash
+# Using Python runner
+python test/run_tests.py
 
-## Resources
+# Using pytest
+pytest test/run_tests.py
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
-
-## What next?
-
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+# Using Makefile
+cd test && make
+```

@@ -1,56 +1,53 @@
 # Tiny Tapeout project information
 project:
-  title:        ""      # Project title
-  author:       ""      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  ""      # One line description of what your project does
-  language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
+  title:        "NUAT Labs I2C Controller"
+  author:       "NUAT Labs"
+  discord:      ""
+  description:  "I2C Master Controller supporting open-drain I/O, addressing, ACK/NACK, clock stretching, and arbitration loss."
+  language:     "Verilog"
+  clock_hz:     10000000
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
-  tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
+  tiles: "1x1"
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_example"
+  top_module:  "tt_um_nuatlabs_i2c"
 
   # List your project's source files here.
-  # Source files must be in ./src and you must list each source file separately, one per line.
-  # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "project.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
-# This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "DATA_IN[0] / NACK_BIT"
+  ui[1]: "DATA_IN[1]"
+  ui[2]: "DATA_IN[2]"
+  ui[3]: "DATA_IN[3]"
+  ui[4]: "DATA_IN[4]"
+  ui[5]: "DATA_IN[5]"
+  ui[6]: "DATA_IN[6]"
+  ui[7]: "DATA_IN[7] / STATUS_SEL"
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "DATA_OUT[0] / STATE[0]"
+  uo[1]: "DATA_OUT[1] / STATE[1]"
+  uo[2]: "DATA_OUT[2] / STATE[2]"
+  uo[3]: "DATA_OUT[3] / STATE[3]"
+  uo[4]: "DATA_OUT[4] / RX_ACK"
+  uo[5]: "DATA_OUT[5] / ACK_ERROR"
+  uo[6]: "DATA_OUT[6] / ARB_LOST"
+  uo[7]: "DATA_OUT[7] / BUS_ACTIVE"
 
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
-  uio[4]: ""
-  uio[5]: ""
-  uio[6]: ""
-  uio[7]: ""
+  uio[0]: "I2C_SCL (Open-Drain)"
+  uio[1]: "I2C_SDA (Open-Drain)"
+  uio[2]: "CMD_START"
+  uio[3]: "CMD_READ"
+  uio[4]: "CMD_STOP"
+  uio[5]: "CMD_VALID"
+  uio[6]: "BUSY (Output)"
+  uio[7]: "IRQ_DONE (Output)"
 
 # Do not change!
 yaml_version: 6
